@@ -1,0 +1,7 @@
+access_key       = "<your-access-key>"         # AWS access key, found in AWS console under IAM
+secret_key       = "<your-secret-key>"         # AWS secret key, found in AWS console under IAM
+region           = "<your-region>"             # AWS region for deployment
+environment_name = "<your-environment-name>"   # Name for your environment, used in resource naming
+location         = "<your-location>"           # Location identifier, used in resource naming
+my_public_ip     = "<your-public-ip>"          # Your public IP for RDP access
+key_name         = "<your-key-name>"           # Name of the key pair for password retrieval
