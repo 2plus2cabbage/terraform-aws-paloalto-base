@@ -37,11 +37,13 @@ The project is split into multiple files to illustrate modularity and keep separ
 1. Update `terraform.tfvars` with AWS credentials, key pair name in `key_name`, your public IP in `my_public_ip`, and a valid Palo Alto AMI ID in `firewall_ami` if different from the default.
 2. Run `terraform init`, then (optionally) `terraform plan` to preview changes, then `terraform apply` (type `yes`).
 3. Get the firewall management public IP from the `management_public_ip` output on the screen, or run `terraform output management_public_ip`, or check in the AWS Console under **EC2 > Instances**.
-4. Access the firewall’s management interface via HTTPS at `https://<management_public_ip>` using a web browser, or SSH to the management IP with your key pair.
-5. Get the Windows VM private IP from the `aws_vm_private_ip` output on the screen, or run `terraform output aws_vm_private_ip`. Access it via RDP through the firewall’s trust interface after configuring firewall rules.
-6. Retrieve the Windows VM initial password in the AWS Console under **EC2 > Instances > [select instance] > Actions > Security > Get Windows Password**, using the key pair specified in `key_name`.
-7. Use Remote Desktop to log in to the Windows VM with the `Administrator` user and the retrieved initial password, via the firewall’s trust interface.
-8. To remove all resources, run `terraform destroy` (type `yes`).
+4. Use SSH to connect to the firewall management interface using the public IP and your key pair. Change the admin password by entering `configure`, then `set mgt-config users admin password`, and `commit`.
+5. Use HTTPS to connect to the firewall management interface at `https://<management_public_ip>` using a web browser.
+6. Update MY-PUBLIC-IP in `firewall-config.xml`: find and replace `5.5.5.5/32` with your actual public IP (same as `my_public_ip` in `terraform.tfvars`), then save the file.
+7. Import the XML configuration via the GUI at `https://<management_public_ip>`: log in with username `fwadmin` and the password from `terraform.tfvars` (`firewall_admin_password`), go to Device > Setup > Operations > Import Named Configuration Snapshot, upload your XML file, then go to Device > Setup > Operations > Load Named Configuration Snapshot and select the imported file to load the configuration, and commit (note that after the commit, the admin password will be reset to `2Plus2cabbage!`).
+8. Retrieve the Windows VM initial password in the AWS Console under **EC2 > Instances > [select instance] > Actions > Security > Get Windows Password**, using the key pair specified in `key_name`.
+9. Use Remote Desktop to connect to the firewall’s untrust public IP at `<untrust_public_ip>`, obtained from the `untrust_public_ip` output or by running `terraform output untrust_public_ip`, to access the Windows VM with the `Administrator` user and the retrieved initial password, after configuring firewall rules.
+10. To remove all resources, run `terraform destroy` (type `yes`).
 
 ## Potential costs and licensing
 - The resources deployed using this Terraform configuration should generally incur minimal to no costs, provided they are terminated promptly after creation.
