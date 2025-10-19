@@ -58,28 +58,29 @@ resource "aws_instance" "palo_alto" {
   ami                       = var.firewall_ami                                              # VM-Series AMI
   instance_type             = var.firewall_instance_type                                    # Instance type for firewall
   key_name                  = var.key_name                                                  # Key pair for SSH access
-  network_interface {
+  primary_network_interface {
     network_interface_id    = aws_network_interface.management.id                           # Management NIC
-    device_index            = 0                                                             # Management interface index
-  }
-  network_interface {
-    network_interface_id    = aws_network_interface.untrust.id                              # Untrust NIC
-    device_index            = 1                                                             # Untrust interface index
-  }
-  network_interface {
-    network_interface_id    = aws_network_interface.trust.id                                # Trust NIC
-    device_index            = 2                                                             # Trust interface index
-  }
+    }
                                                                                             # User data for DHCP configuration
   user_data                 = <<-EOF
                             type=dhcp-client
                             EOF
-                                                                                     
   tags                      = {
     Name                    = "${local.firewall_name_prefix}001"                            # Name of Firewall
   }
 }
 
+resource "aws_network_interface_attachment" "fw_nic_untrust" {
+    instance_id = aws_instance.palo_alto.id
+    network_interface_id    = aws_network_interface.untrust.id                              # Untrust NIC
+    device_index = 1
+}
+
+resource "aws_network_interface_attachment" "fw_nic_trust" {
+    instance_id = aws_instance.palo_alto.id
+    network_interface_id    = aws_network_interface.trust.id                              # Trust NIC
+    device_index = 2
+}
                                                                                             # Output for firewall management IP
 output "management_public_ip" {
   description               = "Management interface public IP"                              # Description of the output
